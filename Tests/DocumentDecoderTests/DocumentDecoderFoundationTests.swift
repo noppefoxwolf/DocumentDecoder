@@ -39,11 +39,8 @@ struct DocumentDecoderFoundationTests {
         
         // Check for link attribute
         let range = attributedString.startIndex..<attributedString.endIndex
-        if let linkURL = attributedString[range].link {
-            #expect(linkURL.absoluteString == "https://example.com")
-        } else {
-            #expect(false, "Link attribute not found")
-        }
+        let linkURL = try #require(attributedString[range].link)
+        #expect(linkURL.absoluteString == "https://example.com")
     }
     
     @Test
