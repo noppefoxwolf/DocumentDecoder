@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 
 extension DocumentDecoder {
     public func decode(from string: String) throws -> AttributedString {
@@ -86,7 +85,7 @@ extension DocumentDecoder {
                let url = URL(string: href) {
                 container.link = url
             }
-            container.foregroundColor = SwiftUI.Color.blue
+            container.foregroundColor = Color.blue
             
         case "h1", "h2", "h3", "h4", "h5", "h6":
             // 見出しには強調スタイルを適用
@@ -144,7 +143,7 @@ extension DocumentDecoder {
         }
     }
     
-    private func parseColor(_ colorString: String) -> SwiftUI.Color? {
+    private func parseColor(_ colorString: String) -> Color? {
         // Basic color name parsing
         let normalizedColor = colorString.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         

@@ -7,7 +7,7 @@ struct DocumentDecoderTests {
     @Test func testBasicHTMLParsing() async throws {
         let decoder = DocumentDecoder()
         let html = "<html><body><h1>Hello World</h1></body></html>"
-        let node = try decoder.decode(from: html)
+        let node: HTMLNode = try decoder.decode(from: html)
         
         // ルートノードの確認
         #expect(node.type == .document)
@@ -35,7 +35,7 @@ struct DocumentDecoderTests {
             <p>Second <strong>paragraph</strong> with <a href="https://example.com">link</a></p>
         </div>
         """
-        let node = try decoder.decode(from: html)
+        let node: HTMLNode = try decoder.decode(from: html)
         
         // DIVノードとその属性のテスト
         let divNode = node.querySelector("div")
@@ -73,7 +73,7 @@ struct DocumentDecoderTests {
             <p>This is a paragraph &lt;with&gt; special &amp; characters</p>
         </div>
         """
-        let node = try decoder.decode(from: html)
+        let node: HTMLNode = try decoder.decode(from: html)
         
         // IMGタグとその属性のテスト
         let imgNode = node.querySelector("img")
@@ -100,7 +100,7 @@ struct DocumentDecoderTests {
     @Test func testInnerAndOuterHTML() async throws {
         let decoder = DocumentDecoder()
         let html = "<div id=\"test\"><p>Hello</p><p>World</p></div>"
-        let node = try decoder.decode(from: html)
+        let node: HTMLNode = try decoder.decode(from: html)
         
         let divNode = node.querySelector("div")
         #expect(divNode != nil)
@@ -130,7 +130,7 @@ struct DocumentDecoderTests {
             </div>
         </section>
         """
-        let node = try decoder.decode(from: html)
+        let node: HTMLNode = try decoder.decode(from: html)
         
         // すべてのPタグを検索
         let allParagraphs = node.querySelectorAll("p")
@@ -170,7 +170,7 @@ struct DocumentDecoderTests {
             </body>
         </html>
         """
-        let node = try decoder.decode(from: html)
+        let node: HTMLNode = try decoder.decode(from: html)
         
         // DOCTYPE宣言はノードとしてパースされないが、HTML構造が正しいことを確認
         let htmlNode = node.children.first
@@ -198,7 +198,7 @@ struct DocumentDecoderTests {
         
         // 閉じタグのないHTML
         let unclosedTagHtml = "<div><p>This paragraph is not closed <span>This span is also not closed</div>"
-        let unclosedNode = try decoder.decode(from: unclosedTagHtml)
+        let unclosedNode: HTMLNode = try decoder.decode(from: unclosedTagHtml)
         
         // DIVタグが正しく認識されるか
         let divNode = unclosedNode.querySelector("div")
@@ -215,7 +215,7 @@ struct DocumentDecoderTests {
         
         // 入れ子になっていない（正しく閉じられていない）タグ
         let overlappingTagsHtml = "<div><b>Bold text <i>Bold and italic</b> just italic</i></div>"
-        let overlappingNode = try decoder.decode(from: overlappingTagsHtml)
+        let overlappingNode: HTMLNode = try decoder.decode(from: overlappingTagsHtml)
         
         // パーサーは壊れたHTMLでも最善を尽くしてパースする
         let boldNode = overlappingNode.querySelector("b")
@@ -224,7 +224,7 @@ struct DocumentDecoderTests {
         
         // 現実的な壊れた属性を持つHTML (引用符を修正)
         let brokenAttributesHtml = "<div class=container><p id>Broken attributes</p></div>"
-        let brokenAttrsNode = try decoder.decode(from: brokenAttributesHtml)
+        let brokenAttrsNode: HTMLNode = try decoder.decode(from: brokenAttributesHtml)
         
         // DIVタグは認識されるはず
         let brokenDivNode = brokenAttrsNode.querySelector("div")
@@ -239,7 +239,7 @@ struct DocumentDecoderTests {
         
         // タグが開いて閉じられないまま終わるHTML
         let unclosedEndHtml = "<div><p>This is the end"
-        let unclosedEndNode = try decoder.decode(from: unclosedEndHtml)
+        let unclosedEndNode: HTMLNode = try decoder.decode(from: unclosedEndHtml)
         
         // DIVとPタグは認識されるはず
         let endDivNode = unclosedEndNode.querySelector("div")
@@ -251,7 +251,7 @@ struct DocumentDecoderTests {
         
         // 空のHTML
         let emptyHtml = ""
-        let emptyNode = try decoder.decode(from: emptyHtml)
+        let emptyNode: HTMLNode = try decoder.decode(from: emptyHtml)
         
         // ドキュメントノードは存在するはず
         #expect(emptyNode.type == .document)
