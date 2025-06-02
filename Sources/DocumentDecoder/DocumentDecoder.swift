@@ -1,14 +1,5 @@
-import Foundation
-
 public struct DocumentDecoder {
     public init() {}
-    
-    public func decode(from data: Data) throws -> HTMLNode {
-        guard let htmlString = String(data: data, encoding: .utf8) else {
-            throw DocumentDecoderError.invalidEncoding
-        }
-        return try parse(htmlString: htmlString)
-    }
     
     public func decode(from string: String) throws -> HTMLNode {
         try parse(htmlString: string)
@@ -109,14 +100,31 @@ public struct DocumentDecoder {
                     
                     if endPos < length {
                         let tagContent = String(characters[currentPosition + 1..<endPos])
-                        let parts = tagContent.split(separator: " ", maxSplits: 1)
-                        let tagName = String(parts[0])
+                        
+                        // 改善：タグ内容をより堅牢に分割
+                        var tagName = ""
+                        var attributeString = ""
+                        
+                        // タグ名を取得（空白までの部分）
+                        if let firstSpace = tagContent.firstIndex(where: { $0.isWhitespace }) {
+                            tagName = String(tagContent[..<firstSpace])
+                            let afterTagName = tagContent.index(after: firstSpace)
+                            if afterTagName < tagContent.endIndex {
+                                attributeString = String(tagContent[afterTagName...])
+                            }
+                        } else {
+                            tagName = tagContent
+                        }
+                        
+                        // スラッシュで終わるタグ名をクリーンアップ
+                        if tagName.hasSuffix("/") {
+                            tagName = String(tagName.dropLast())
+                        }
                         
                         let node = HTMLNode(type: .element, name: tagName)
                         
-                        // Parse attributes if any
-                        if parts.count > 1 {
-                            let attributeString = String(parts[1])
+                        // 属性を解析
+                        if !attributeString.isEmpty {
                             node.attributes = parseAttributes(attributeString)
                         }
                         
@@ -207,21 +215,21 @@ public struct DocumentDecoder {
                         
                         let valueStart = currentPosition
                         
-                        // Find closing quote
-                        while currentPosition < length && characters[currentPosition] != quoteChar {
+                        // Find closing quote OR end of attribute string
+                        while currentPosition < length && characters[currentPosition] != quoteChar && characters[currentPosition] != ">" {
                             currentPosition += 1
                         }
                         
                         value = String(characters[valueStart..<currentPosition])
                         
-                        if currentPosition < length {
-                            currentPosition += 1 // Skip closing quote
+                        if currentPosition < length && characters[currentPosition] == quoteChar {
+                            currentPosition += 1 // Skip closing quote if present
                         }
                     } else {
                         // Unquoted value
                         let valueStart = currentPosition
                         
-                        while currentPosition < length && !characters[currentPosition].isWhitespace {
+                        while currentPosition < length && !characters[currentPosition].isWhitespace && characters[currentPosition] != ">" {
                             currentPosition += 1
                         }
                         
