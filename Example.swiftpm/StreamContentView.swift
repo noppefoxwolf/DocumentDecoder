@@ -3,15 +3,15 @@ import DocumentDecoder
 
 struct StreamContentView: View {
     @State
-    var attributedTexts: [AttributedString] = []
+    var posts: [Post] = []
     
     var body: some View {
-        List(attributedTexts, id: \.self) { attributedText in
-            Text(attributedText)
+        List(posts) { post in
+            Text(post.attributedText)
         }
         .overlay {
             ProgressView()
-                .opacity(attributedTexts.isEmpty ? 1 : 0)
+                .opacity(posts.isEmpty ? 1 : 0)
         }
         .task {
             while true {
@@ -40,7 +40,7 @@ struct StreamContentView: View {
                     let decoder = DocumentDecoder()
                     return try decoder.decode(from: status.content)
                 }()
-                attributedTexts.insert(attributedText, at: 0)
+                posts.insert(Post(attributedText: attributedText), at: 0)
             } catch is Swift.DecodingError {
                 break
             } catch {
@@ -62,4 +62,9 @@ struct Message: Decodable {
 
 struct Status: Decodable {
     let content: String
+}
+
+struct Post: Identifiable {
+    let id: UUID = UUID()
+    let attributedText: AttributedString
 }
