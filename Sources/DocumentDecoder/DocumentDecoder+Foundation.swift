@@ -85,7 +85,7 @@ extension DocumentDecoder {
                let url = URL(string: href) {
                 container.link = url
             }
-            container.foregroundColor = Color.blue
+            container.foregroundColor = Color.tintColor
             
         case "h1", "h2", "h3", "h4", "h5", "h6":
             // 見出しには強調スタイルを適用
