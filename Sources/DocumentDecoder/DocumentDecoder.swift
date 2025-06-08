@@ -349,4 +349,21 @@ public final class HTMLNode {
         let selfClosingTags = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]
         return selfClosingTags.contains(tagName.lowercased())
     }
+    
+    public func hasClass(_ className: String) -> Bool {
+        guard let classAttribute = attributes["class"] else {
+            return false
+        }
+        
+        let classes = classAttribute.split(separator: " ").map { String($0) }
+        return classes.contains(className)
+    }
+    
+    public var classList: [String] {
+        guard let classAttribute = attributes["class"] else {
+            return []
+        }
+        
+        return classAttribute.split(separator: " ").map { String($0) }
+    }
 }
