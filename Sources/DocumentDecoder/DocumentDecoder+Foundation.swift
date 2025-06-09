@@ -40,6 +40,12 @@ extension DocumentDecoder {
                 result.append(childAttributedString)
             }
             
+            // Check if this element has ellipsis class and add ellipsis if needed
+            if hasEllipsisClass(node) && !result.characters.isEmpty {
+                let ellipsis = AttributedString("…")
+                result.append(ellipsis)
+            }
+            
             // Add appropriate spacing for block elements
             if isBlockElement(node.name) && !result.characters.isEmpty {
                 // Add newline after block elements if they don't already end with one
@@ -173,5 +179,14 @@ extension DocumentDecoder {
         ]
         
         return blockElements.contains(tagName)
+    }
+    
+    private func hasEllipsisClass(_ node: HTMLNode) -> Bool {
+        guard let classAttribute = node.getAttribute("class") else {
+            return false
+        }
+        
+        let classes = classAttribute.split(separator: " ").map { String($0) }
+        return classes.contains { $0.lowercased().contains("ellipsis") }
     }
 }

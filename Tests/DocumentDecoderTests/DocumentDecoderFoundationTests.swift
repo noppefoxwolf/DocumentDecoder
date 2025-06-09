@@ -149,4 +149,58 @@ struct DocumentDecoderFoundationTests {
         let stringValue = String(attributedString.characters)
         #expect(stringValue.contains("\n"))
     }
+    
+    @Test
+    func testEllipsisClass() throws {
+        let decoder = DocumentDecoder()
+        let html = """
+        <p class="ellipsis">This text should be truncated</p>
+        <span class="text-ellipsis">Another ellipsis text</span>
+        <div class="some-class ellipsis other-class">Div with ellipsis</div>
+        """
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        
+        let stringValue = String(attributedString.characters)
+        
+        #expect(stringValue.contains("This text should be truncated…"))
+        #expect(stringValue.contains("Another ellipsis text…"))
+        #expect(stringValue.contains("Div with ellipsis…"))
+        
+        // Check that ellipsis is properly added
+        #expect(stringValue.filter { $0 == "…" }.count == 3)
+    }
+    
+    @Test
+    func testEllipsisClassWithNestedElements() throws {
+        let decoder = DocumentDecoder()
+        let html = """
+        <div class="ellipsis">
+          <strong>Bold text</strong> with <em>italic</em>
+        </div>
+        """
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        
+        let stringValue = String(attributedString.characters)
+        
+        #expect(stringValue.contains("Bold text with italic…"))
+        #expect(stringValue.filter { $0 == "…" }.count == 1)
+    }
+    
+    @Test
+    func testNonEllipsisClass() throws {
+        let decoder = DocumentDecoder()
+        let html = """
+        <p class="normal-text">This text should not be truncated</p>
+        <span class="some-class">Another normal text</span>
+        """
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        
+        let stringValue = String(attributedString.characters)
+        
+        #expect(stringValue.contains("This text should not be truncated"))
+        #expect(stringValue.contains("Another normal text"))
+        
+        // Check that no ellipsis is added
+        #expect(!stringValue.contains("…"))
+    }
 }
