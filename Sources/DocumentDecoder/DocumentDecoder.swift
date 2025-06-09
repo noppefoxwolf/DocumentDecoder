@@ -250,6 +250,25 @@ public struct DocumentDecoder {
         let selfClosingTags = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]
         return selfClosingTags.contains(tagName.lowercased())
     }
+    
+    // HTMLエンティティをデコードする関数
+    private func decodeHTMLEntities(_ string: String) -> String {
+        // &amp; を最後に処理するため、順序を明示的に指定
+        let orderedEntities: [(String, String)] = [
+            ("&lt;", "<"),
+            ("&gt;", ">"),
+            ("&quot;", "\""),
+            ("&apos;", "'"),
+            ("&nbsp;", " "),
+            ("&amp;", "&")  // &amp; を最後に処理
+        ]
+        
+        var result = string
+        for (entity, replacement) in orderedEntities {
+            result = result.replacingOccurrences(of: entity, with: replacement)
+        }
+        return result
+    }
 }
 
 public enum DocumentDecoderError: Error {
@@ -341,13 +360,32 @@ public final class HTMLNode {
                 return "<\(tagName)\(attributesString)>\(innerHTML)</\(tagName)>"
             }
         case .text:
-            return text ?? ""
+            return decodeHTMLEntities(text ?? "")
         }
     }
     
     private func isSelfClosingTag(_ tagName: String) -> Bool {
         let selfClosingTags = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]
         return selfClosingTags.contains(tagName.lowercased())
+    }
+    
+    // HTMLエンティティをデコードする関数
+    private func decodeHTMLEntities(_ string: String) -> String {
+        // &amp; を最後に処理するため、順序を明示的に指定
+        let orderedEntities: [(String, String)] = [
+            ("&lt;", "<"),
+            ("&gt;", ">"),
+            ("&quot;", "\""),
+            ("&apos;", "'"),
+            ("&nbsp;", " "),
+            ("&amp;", "&")  // &amp; を最後に処理
+        ]
+        
+        var result = string
+        for (entity, replacement) in orderedEntities {
+            result = result.replacingOccurrences(of: entity, with: replacement)
+        }
+        return result
     }
     
     public func hasClass(_ className: String) -> Bool {

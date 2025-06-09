@@ -261,7 +261,7 @@ struct DocumentDecoderTests {
     @Test
     func decodeExcapingText() async throws {
         let decoder = DocumentDecoder()
-        let html = "<html><body><h1>&amp;Hello World&gt;</h1></body></html>"
+        let html = "<html><body><h1>&lt;Hello World&gt;</h1></body></html>"
         let node: HTMLNode = try decoder.decode(from: html)
         
         // ルートノードの確認
