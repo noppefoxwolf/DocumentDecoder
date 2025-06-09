@@ -257,5 +257,28 @@ struct DocumentDecoderTests {
         #expect(emptyNode.type == .document)
         #expect(emptyNode.children.isEmpty == true)
     }
+    
+    @Test
+    func decodeExcapingText() async throws {
+        let decoder = DocumentDecoder()
+        let html = "<html><body><h1>&amp;Hello World&gt;</h1></body></html>"
+        let node: HTMLNode = try decoder.decode(from: html)
+        
+        // ルートノードの確認
+        #expect(node.type == .document)
+        
+        // HTMLタグの確認
+        let htmlNode = node.children.first
+        #expect(htmlNode != nil)
+        #expect(htmlNode?.name == "html")
+        
+        // BODYとH1タグの確認
+        let bodyNode = htmlNode?.children.first
+        #expect(bodyNode?.name == "body")
+        
+        let h1Node = bodyNode?.children.first
+        #expect(h1Node?.name == "h1")
+        #expect(h1Node?.innerHTML == "<Hello World>")
+    }
 
 }
