@@ -280,5 +280,4 @@ struct DocumentDecoderTests {
         #expect(h1Node?.name == "h1")
         #expect(h1Node?.innerHTML == "<Hello World>")
     }
-
 }

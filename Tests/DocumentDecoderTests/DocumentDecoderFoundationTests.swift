@@ -23,9 +23,6 @@ struct DocumentDecoderFoundationTests {
         
         #expect(attributedString.characters.count > 0)
         #expect(String(attributedString.characters).contains("This is a bold and italic text."))
-        
-        // Full string includes a newline at the end of paragraph
-        #expect(String(attributedString.characters).hasSuffix("\n"))
     }
     
     @Test
@@ -85,9 +82,6 @@ struct DocumentDecoderFoundationTests {
         
         #expect(attributedString.characters.count > 0)
         #expect(String(attributedString.characters).contains("Paragraph with styling"))
-        
-        // Nested block elements should have proper newlines
-        #expect(String(attributedString.characters).hasSuffix("\n"))
     }
     
     @Test
@@ -202,5 +196,14 @@ struct DocumentDecoderFoundationTests {
         
         // Check that no ellipsis is added
         #expect(!stringValue.contains("…"))
+    }
+    
+    @Test
+    func example() async throws {
+        let decoder = DocumentDecoder()
+        let html = "<p>&gt;BT</p>"
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        
+        #expect(String(attributedString.characters) == ">BT")
     }
 }

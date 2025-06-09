@@ -3,7 +3,18 @@ import Foundation
 extension DocumentDecoder {
     public func decode(from string: String) throws -> AttributedString {
         let rootNode: HTMLNode = try decode(from: string)
-        return try attributedString(from: rootNode)
+        var attributedString = try attributedString(from: rootNode)
+        
+        // Remove leading newlines if requested
+        while attributedString.characters.first == "\n" {
+            attributedString.characters.removeFirst()
+        }
+        
+        // Remove trailing newlines if requested
+        while attributedString.characters.last == "\n" {
+            attributedString.characters.removeLast()
+        }
+        return attributedString
     }
     
     private func attributedString(from node: HTMLNode) throws -> AttributedString {
@@ -62,9 +73,7 @@ extension DocumentDecoder {
             }
             
         case .text:
-            if let text = node.text {
-                result = AttributedString(text)
-            }
+            result = AttributedString(node.outerHTML)
         }
         
         return result
