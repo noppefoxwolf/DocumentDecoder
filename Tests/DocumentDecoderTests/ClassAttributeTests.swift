@@ -62,4 +62,61 @@ final class ClassAttributeTests: XCTestCase {
         // Check href attribute
         XCTAssertEqual(mentionElements.first?.getAttribute("href"), "https://mstdn.jp/tags/%E3%81%8D%E3%81%A4%E3%81%AD%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84")
     }
+    
+    func testInvisibleClassHidesContent() throws {
+        let html = """
+        <div>
+            <p>Visible content</p>
+            <p class="invisible">This should be hidden</p>
+            <p>More visible content</p>
+        </div>
+        """
+        
+        let decoder = DocumentDecoder()
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        let text = String(attributedString.characters)
+        
+        // The invisible content should not appear in the final text
+        XCTAssertTrue(text.contains("Visible content"), "Should contain visible content")
+        XCTAssertTrue(text.contains("More visible content"), "Should contain more visible content")
+        XCTAssertFalse(text.contains("This should be hidden"), "Should not contain invisible content")
+    }
+    
+    func testInvisibleClassWithOtherClasses() throws {
+        let html = """
+        <div>
+            <span class="highlight invisible important">This should be hidden despite other classes</span>
+            <span class="highlight important">This should be visible</span>
+        </div>
+        """
+        
+        let decoder = DocumentDecoder()
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        let text = String(attributedString.characters)
+        
+        XCTAssertFalse(text.contains("This should be hidden despite other classes"), "Should not contain invisible content")
+        XCTAssertTrue(text.contains("This should be visible"), "Should contain visible content")
+    }
+    
+    func testNestedInvisibleElements() throws {
+        let html = """
+        <div>
+            <p>Before invisible</p>
+            <div class="invisible">
+                <p>Hidden paragraph</p>
+                <span>Hidden span</span>
+            </div>
+            <p>After invisible</p>
+        </div>
+        """
+        
+        let decoder = DocumentDecoder()
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        let text = String(attributedString.characters)
+        
+        XCTAssertTrue(text.contains("Before invisible"), "Should contain content before invisible element")
+        XCTAssertTrue(text.contains("After invisible"), "Should contain content after invisible element")
+        XCTAssertFalse(text.contains("Hidden paragraph"), "Should not contain content inside invisible element")
+        XCTAssertFalse(text.contains("Hidden span"), "Should not contain content inside invisible element")
+    }
 }

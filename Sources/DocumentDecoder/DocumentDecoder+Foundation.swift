@@ -18,6 +18,11 @@ extension DocumentDecoder {
             }
             
         case .element:
+            // Check if this element has invisible class and skip rendering if it does
+            if hasInvisibleClass(node) {
+                return result
+            }
+            
             let attributes = attributesForElement(node)
             
             // Special case for line breaks
@@ -188,5 +193,14 @@ extension DocumentDecoder {
         
         let classes = classAttribute.split(separator: " ").map { String($0) }
         return classes.contains { $0.lowercased().contains("ellipsis") }
+    }
+    
+    private func hasInvisibleClass(_ node: HTMLNode) -> Bool {
+        guard let classAttribute = node.getAttribute("class") else {
+            return false
+        }
+        
+        let classes = classAttribute.split(separator: " ").map { String($0) }
+        return classes.contains { $0.lowercased() == "invisible" }
     }
 }
