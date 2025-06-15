@@ -120,70 +120,9 @@ extension DocumentDecoder {
             break
         }
         
-        // Process style attribute if present
-        if let styleString = node.getAttribute("style") {
-            processInlineStyle(styleString, into: &container)
-        }
-        
         return container
     }
-    
-    private func processInlineStyle(_ styleString: String, into container: inout AttributeContainer) {
-        // Basic style parsing
-        let stylePairs = styleString.split(separator: ";")
         
-        for pair in stylePairs {
-            let parts = pair.split(separator: ":", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            if parts.count == 2 {
-                let property = parts[0].lowercased()
-                let value = parts[1]
-                
-                switch property {
-                case "color":
-                    if let color = parseColor(value) {
-                        container.foregroundColor = color
-                    }
-                case "font-weight":
-                    if value == "bold" {
-                        container.inlinePresentationIntent = .stronglyEmphasized
-                    }
-                case "font-style":
-                    if value == "italic" {
-                        container.inlinePresentationIntent = .emphasized
-                    }
-                case "text-decoration":
-                    if value.contains("underline") {
-                        container.underlineStyle = .single
-                    }
-                    if value.contains("line-through") {
-                        container.strikethroughStyle = .single
-                    }
-                default:
-                    break
-                }
-            }
-        }
-    }
-    
-    private func parseColor(_ colorString: String) -> Color? {
-        // Basic color name parsing
-        let normalizedColor = colorString.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        switch normalizedColor {
-        case "black": return .black
-        case "white": return .white
-        case "red": return .red
-        case "green": return .green
-        case "blue": return .blue
-        case "yellow": return .yellow
-        case "gray", "grey": return .gray
-        case "orange": return .orange
-        case "purple": return .purple
-        default:
-            return nil
-        }
-    }
-    
     private func isBlockElement(_ tagName: String?) -> Bool {
         guard let tagName = tagName?.lowercased() else { return false }
         
