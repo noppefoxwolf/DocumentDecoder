@@ -1,0 +1,15 @@
+{
+  "originHash" : "e2b59143114b7a774c3b0aa4911d5e854a24c74bcddff49cf300817fa0781ece",
+  "pins" : [
+    {
+      "identity" : "swift-html-entities",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Kitura/swift-html-entities",
+      "state" : {
+        "revision" : "d8ca73197f59ce260c71bd6d7f6eb8bbdccf508b",
+        "version" : "4.0.1"
+      }
+    }
+  ],
+  "version" : 3
+}

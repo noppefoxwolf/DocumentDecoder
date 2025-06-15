@@ -61,6 +61,15 @@ struct DocumentDecoderTests {
         #expect(linkTag?.getAttribute("href") == "https://example.com")
         #expect(linkTag?.innerHTML == "link")
     }
+    
+    @Test
+    func testEscaping() async throws {
+        let node = HTMLNode(type: .text)
+        #expect(node.decodeHTMLEntities("&lt;") == "<")
+        #expect(node.decodeHTMLEntities("&gt;") == ">")
+        #expect(node.decodeHTMLEntities("&#39;") == "'")
+        #expect(node.decodeHTMLEntities("&NewLine;") == "\n")
+    }
 
     // セルフクロージングタグとエスケープのテスト
     @Test func testSelfClosingTagsAndEscaping() async throws {
