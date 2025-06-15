@@ -289,4 +289,58 @@ struct DocumentDecoderTests {
         #expect(h1Node?.name == "h1")
         #expect(h1Node?.innerHTML == "<Hello World>")
     }
+    
+    @Test
+    func testAppleTouchIconExtraction() async throws {
+        let decoder = DocumentDecoder()
+        let html = """
+        <html>
+            <head>
+                <link rel="apple-touch-icon" href="/icons/icon-192.png">
+            </head>
+            <body>
+                <h1>Test</h1>
+            </body>
+        </html>
+        """
+        let node: HTMLNode = try decoder.decode(from: html)
+
+        // head 内から apple-touch-icon の link タグを取得
+        let linkNode = node.querySelector("link")
+        #expect(linkNode != nil)
+        #expect(linkNode?.getAttribute("href") == "/icons/icon-192.png")
+    }
+    
+    @Test
+    func testMultipleAppleTouchIcons() async throws {
+        let decoder = DocumentDecoder()
+        let html = """
+        <html>
+            <head>
+                <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/icons/icon-180.png\">
+                <link rel=\"apple-touch-icon\" sizes=\"152x152\" href=\"/icons/icon-152.png\">
+                <link rel=\"apple-touch-icon\" href=\"/icons/default-icon.png\">
+                <link rel="stylesheet" href="style.css">
+            </head>
+        </html>
+        """
+        let node: HTMLNode = try decoder.decode(from: html)
+
+        // apple-touch-icon の link タグを複数取得
+        let links = node.querySelectorAll("link").filter({ $0.getAttribute("rel") == "apple-touch-icon" })
+        #expect(links.count == 3)
+
+        let sizes180 = links.first { $0.getAttribute("sizes") == "180x180" }
+        #expect(sizes180 != nil)
+        #expect(sizes180?.getAttribute("href") == "/icons/icon-180.png")
+
+        let sizes152 = links.first { $0.getAttribute("sizes") == "152x152" }
+        #expect(sizes152 != nil)
+        #expect(sizes152?.getAttribute("href") == "/icons/icon-152.png")
+
+        let defaultIcon = links.first { $0.getAttribute("sizes") == nil }
+        #expect(defaultIcon != nil)
+        #expect(defaultIcon?.getAttribute("href") == "/icons/default-icon.png")
+    }
+    
 }
