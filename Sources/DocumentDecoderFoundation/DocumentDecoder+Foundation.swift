@@ -107,6 +107,7 @@ extension DocumentDecoder {
                let url = URL(string: href) {
                 container.link = url
             }
+            container.html = HTMLAttributeValue(attributes: node.attributes)
             container.foregroundColor = Color.tintColor
             
         case "h1", "h2", "h3", "h4", "h5", "h6":

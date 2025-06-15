@@ -1,6 +1,7 @@
 import Testing
 import Foundation
 @testable import DocumentDecoder
+@testable import DocumentDecoderFoundation
 
 @Suite
 struct DocumentDecoderFoundationTests {
@@ -199,11 +200,23 @@ struct DocumentDecoderFoundationTests {
     }
     
     @Test
-    func example() async throws {
+    func decodeEscapedHTMLString() async throws {
         let decoder = DocumentDecoder()
         let html = "<p>&gt;BT</p>"
         let attributedString: AttributedString = try decoder.decode(from: html)
         
         #expect(String(attributedString.characters) == ">BT")
+    }
+    
+    @Test
+    func attributes() async throws {
+        let decoder = DocumentDecoder()
+        let html = """
+        <a href="https://lemm.ee/c/BreadClub" class="u-url mention account-url-link group" data-account-id="113967687941977509" data-account-actor-type="Group" data-account-acct="BreadClub@lemm.ee">@<span>BreadClub</span></a>
+        """
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        attributedString.runs[\.link].forEach { link, range in
+            print(attributedString[range].html)
+        }
     }
 }

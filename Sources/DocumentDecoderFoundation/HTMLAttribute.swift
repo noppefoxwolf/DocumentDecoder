@@ -3,47 +3,65 @@ import Foundation
 import UIKit
 #endif
 
+#if canImport(AppKit)
+import AppKit
+#endif
+
 extension NSAttributedString.Key {
-    static var html: NSAttributedString.Key { NSAttributedString.Key("dev.noppe.snowfox.html") }
+    static var html: NSAttributedString.Key { NSAttributedString.Key("HTMLAttribute") }
 }
 
-enum HTMLAttribute: CodableAttributedStringKey {
-    typealias Value = HTMLAttributeValue
-    static var name: String { NSAttributedString.Key.html.rawValue }
+public enum HTMLAttribute: CodableAttributedStringKey {
+    public typealias Value = HTMLAttributeValue
+    public static var name: String { NSAttributedString.Key.html.rawValue }
 }
 
 extension HTMLAttribute: ObjectiveCConvertibleAttributedStringKey {
-    static func objectiveCValue(for value: HTMLAttributeValue) throws -> HTMLAttributeObject {
-        HTMLAttributeObject()
+    public static func objectiveCValue(for value: HTMLAttributeValue) throws -> HTMLAttributeObject {
+        HTMLAttributeObject(
+            attributes: value.attributes
+        )
     }
 
-    static func value(for object: HTMLAttributeObject) throws -> HTMLAttributeValue {
-        HTMLAttributeValue()
+    public static func value(for object: HTMLAttributeObject) throws -> HTMLAttributeValue {
+        HTMLAttributeValue(
+            attributes: object.attributes
+        )
     }
 }
 
-struct HTMLAttributeValue: Hashable, Codable {
+public struct HTMLAttributeValue: Hashable, Codable, Sendable {
+    public let attributes: [String : String]
 }
 
-final class HTMLAttributeObject: NSObject {
+public final class HTMLAttributeObject: NSObject {
+    public let attributes: [String : String]
+    
+    init(attributes: [String : String]) {
+        self.attributes = attributes
+    }
 }
 
 extension AttributeScopes {
-    struct HTMLAttributes: AttributeScope {
-        let html: HTMLAttribute
+    public struct HTMLAttributes: AttributeScope {
+        public let html: HTMLAttribute
 
-        let foundation: FoundationAttributes
+        public let foundation: FoundationAttributes
         
         #if canImport(UIKit)
-        let uiKit: UIKitAttributes
+        public let uiKit: UIKitAttributes
+        #endif
+        
+        #if canImport(AppKit)
+        public let appKit: AppKitAttributes
         #endif
     }
 
-    var html: HTMLAttributes.Type { HTMLAttributes.self }
+    public var html: HTMLAttributes.Type { HTMLAttributes.self }
 }
 
 extension AttributeDynamicLookup {
-    subscript<T: AttributedStringKey>(
+    public subscript<T: AttributedStringKey>(
         dynamicMember keyPath: KeyPath<AttributeScopes.HTMLAttributes, T>
     ) -> T {
         return self[T.self]
