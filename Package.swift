@@ -20,6 +20,9 @@ let package = Package(
         ),
         .target(
             name: "DocumentDecoderFoundation",
+            dependencies: [
+                "DocumentDecoder",
+            ]
         ),
         .testTarget(
             name: "DocumentDecoderTests",
