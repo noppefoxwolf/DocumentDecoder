@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import DocumentDecoder
 
 extension DocumentDecoder {
     public func decode(from string: String) throws -> AttributedString {

@@ -1,6 +1,7 @@
 import Testing
 import Foundation
 @testable import DocumentDecoder
+@testable import DocumentDecoderFoundation
 
 struct ClassAttributeTests {
     @Test func hasClassAndClassList() throws {
