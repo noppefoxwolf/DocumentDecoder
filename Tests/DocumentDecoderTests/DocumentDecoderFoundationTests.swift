@@ -246,4 +246,16 @@ struct DocumentDecoderFoundationTests {
         let lines = stringValue.components(separatedBy: "\n")
         #expect(lines.count == 5) // line1, 空行, line2, 空行, line3
     }
+
+    @Test
+    func decodeWhitespace() async throws {
+        let decoder = DocumentDecoder()
+        let html = "<a>apple</a> <a>banana</a> <a>cherry</a>"
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        
+        let stringValue = String(attributedString.characters)
+        let expectedOutput = "apple banana cherry"
+        
+        #expect(stringValue == expectedOutput)
+    }
 }
