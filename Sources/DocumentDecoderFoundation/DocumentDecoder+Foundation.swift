@@ -66,11 +66,23 @@ extension DocumentDecoder {
             
             // Add appropriate spacing for block elements
             if isBlockElement(node.name) && !result.characters.isEmpty {
-                // Add newline after block elements if they don't already end with one
                 let string = String(result.characters)
-                if !string.hasSuffix("\n") {
-                    let newline = AttributedString("\n")
-                    result.append(newline)
+                
+                // For paragraph elements, add double newlines to create spacing between paragraphs
+                if node.name?.lowercased() == "p" {
+                    if !string.hasSuffix("\n") {
+                        let doubleNewline = AttributedString("\n\n")
+                        result.append(doubleNewline)
+                    } else if !string.hasSuffix("\n\n") {
+                        let singleNewline = AttributedString("\n")
+                        result.append(singleNewline)
+                    }
+                } else {
+                    // For other block elements, add single newline if not already present
+                    if !string.hasSuffix("\n") {
+                        let newline = AttributedString("\n")
+                        result.append(newline)
+                    }
                 }
             }
             

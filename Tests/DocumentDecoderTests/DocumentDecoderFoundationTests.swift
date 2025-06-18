@@ -219,4 +219,31 @@ struct DocumentDecoderFoundationTests {
             print(attributedString[range].html)
         }
     }
+    
+    @Test
+    func decodeMultipleParagraphs() async throws {
+        let decoder = DocumentDecoder()
+        let html = "<p>line1</p><p>line2</p><p>line3</p>"
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        
+        let stringValue = String(attributedString.characters)
+        let expectedOutput = """
+        line1
+
+        line2
+
+        line3
+        """
+        
+        #expect(stringValue == expectedOutput)
+        
+        // 各行が適切に含まれていることを確認
+        #expect(stringValue.contains("line1"))
+        #expect(stringValue.contains("line2"))
+        #expect(stringValue.contains("line3"))
+        
+        // 改行の数を確認（pタグの後に改行が追加されるため、各段落の間に空行がある）
+        let lines = stringValue.components(separatedBy: "\n")
+        #expect(lines.count == 5) // line1, 空行, line2, 空行, line3
+    }
 }
