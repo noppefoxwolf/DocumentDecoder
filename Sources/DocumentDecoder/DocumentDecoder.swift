@@ -155,8 +155,16 @@ public struct DocumentDecoder {
                 }
                 
                 let textContent = String(characters[currentPosition..<endPos])
-                if !textContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                // Only create text nodes if there's non-whitespace content OR if there's a single space
+                // that might be significant between inline elements
+                let trimmedContent = textContent.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmedContent.isEmpty {
+                    // Has actual content - create text node with original content
                     let textNode = HTMLNode(type: .text, text: textContent)
+                    currentNode.addChild(textNode)
+                } else if textContent == " " {
+                    // Single space - likely significant whitespace between inline elements
+                    let textNode = HTMLNode(type: .text, text: " ")
                     currentNode.addChild(textNode)
                 }
                 

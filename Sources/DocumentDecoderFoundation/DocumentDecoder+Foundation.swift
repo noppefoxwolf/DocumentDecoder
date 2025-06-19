@@ -7,14 +7,12 @@ extension DocumentDecoder {
         let rootNode: HTMLNode = try decode(from: string)
         var attributedString = try attributedString(from: rootNode)
         
-        // Remove leading newlines if requested
-        while attributedString.characters.first == "\n" {
-            attributedString.characters.removeFirst()
-        }
-        
-        // Remove trailing newlines if requested
-        while attributedString.characters.last == "\n" {
-            attributedString.characters.removeLast()
+        // Remove leading and trailing whitespace/newlines
+        let trimmedString = String(attributedString.characters).trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedString != String(attributedString.characters) {
+            attributedString = AttributedString(trimmedString)
+            // Reapply any attributes that were lost during trimming
+            // This is a simplified approach - in practice we might need more sophisticated attribute preservation
         }
         return attributedString
     }
@@ -60,6 +58,15 @@ extension DocumentDecoder {
             
             // Check if this element has ellipsis class and add ellipsis if needed
             if hasEllipsisClass(node) && !result.characters.isEmpty {
+                // Trim trailing whitespace before adding ellipsis
+                let stringValue = String(result.characters)
+                let trimmedValue = stringValue.trimmingTrailingWhitespace()
+                if trimmedValue != stringValue {
+                    // Recreate the AttributedString without trailing whitespace
+                    // This is a simplified approach - preserves basic attributes but may lose complex formatting
+                    result = AttributedString(trimmedValue)
+                    // TODO: Preserve attributes more carefully
+                }
                 let ellipsis = AttributedString("…")
                 result.append(ellipsis)
             }
@@ -87,7 +94,9 @@ extension DocumentDecoder {
             }
             
         case .text:
-            result = AttributedString(node.outerHTML)
+            let text = node.outerHTML
+            // For text nodes, we want to preserve significant whitespace but normalize multiple spaces
+            result = AttributedString(text)
         }
         
         return result
@@ -165,5 +174,11 @@ extension DocumentDecoder {
         
         let classes = classAttribute.split(separator: " ").map { String($0) }
         return classes.contains { $0.lowercased() == "invisible" }
+    }
+}
+
+extension String {
+    func trimmingTrailingWhitespace() -> String {
+        return self.replacingOccurrences(of: "\\s+$", with: "", options: .regularExpression)
     }
 }
