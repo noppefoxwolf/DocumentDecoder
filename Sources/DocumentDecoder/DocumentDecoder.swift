@@ -256,45 +256,42 @@ public struct DocumentDecoder {
         return attributes
     }
     
-    let selfClosingTags: Set<String> = [
-        "area",
-        "base",
-        "br",
-        "col",
-        "embed",
-        "hr",
-        "img",
-        "input",
-        "link",
-        "meta",
-        "param",
-        "source",
-        "track",
-        "wbr"
+    fileprivate static let selfClosingTags: Set<String> = [
+        "area", "base", "br", "col", "embed", "hr", "img", 
+        "input", "link", "meta", "param", "source", "track", "wbr"
     ]
+    
     private func isSelfClosingTag(_ tagName: String) -> Bool {
-        selfClosingTags.contains(tagName.lowercased())
+        Self.selfClosingTags.contains(tagName.lowercased())
     }
     
     private func isSignificantWhitespace(_ text: String) -> Bool {
-        // Check if text contains only whitespace that might be significant for layout
-        // (not structural whitespace like newlines and tabs)
-        
-        // Start with all whitespace characters, then subtract structural ones
-        let significantSpaces = CharacterSet.whitespaces
-        
-        // First check if it's only whitespace
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmed.isEmpty {
-            return false // Contains non-whitespace content
+        // Early exit for common cases
+        let count = text.count
+        if count == 0 || count > 5 {
+            return false
         }
         
-        // Check if it contains only space-like characters (not newlines, tabs, etc.)
-        let onlySpaceLikeChars = text.unicodeScalars.allSatisfy { scalar in
-            significantSpaces.contains(scalar)
+        // Fast path for single character (most common case)
+        if count == 1 {
+            let char = text.first!
+            return char == " " || char == "\u{00A0}" || char == "\u{3000}"
         }
         
-        return onlySpaceLikeChars && text.count <= 5 // Reasonable limit to prevent very long whitespace
+        // Check if all characters are significant whitespace
+        // Avoid creating strings or using unicode scalars for better performance
+        for char in text {
+            // Check if it's whitespace first (cheaper check)
+            if !char.isWhitespace {
+                return false
+            }
+            // Then check if it's structural whitespace (should be excluded)
+            if char == "\n" || char == "\r" || char == "\t" || char == "\u{000B}" || char == "\u{000C}" {
+                return false
+            }
+        }
+        
+        return true
     }
 }
 
@@ -391,25 +388,8 @@ public final class HTMLNode {
         }
     }
     
-    let selfClosingTags: Set<String> = [
-        "area",
-        "base",
-        "br",
-        "col",
-        "embed",
-        "hr",
-        "img",
-        "input",
-        "link",
-        "meta",
-        "param",
-        "source",
-        "track",
-        "wbr"
-    ]
-    
     func isSelfClosingTag(_ tagName: String) -> Bool {
-        selfClosingTags.contains(tagName.lowercased())
+        DocumentDecoder.selfClosingTags.contains(tagName.lowercased())
     }
     
     // HTMLエンティティをデコードする関数
