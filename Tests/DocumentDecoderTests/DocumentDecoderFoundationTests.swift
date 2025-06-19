@@ -258,4 +258,16 @@ struct DocumentDecoderFoundationTests {
         
         #expect(stringValue == expectedOutput)
     }
+    
+    @Test
+    func decodeWullWidthWhitespace() async throws {
+        let decoder = DocumentDecoder()
+        let html = "<a>apple</a>　<a>banana</a>　<a>cherry</a>"
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        
+        let stringValue = String(attributedString.characters)
+        let expectedOutput = "apple　banana　cherry"
+        
+        #expect(stringValue == expectedOutput)
+    }
 }

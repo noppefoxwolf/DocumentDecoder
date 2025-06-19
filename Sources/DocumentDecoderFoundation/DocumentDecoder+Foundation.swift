@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import DocumentDecoder
+import RegexBuilder
 
 extension DocumentDecoder {
     public func decode(from string: String) throws -> AttributedString {
@@ -179,6 +180,10 @@ extension DocumentDecoder {
 
 extension String {
     func trimmingTrailingWhitespace() -> String {
-        return self.replacingOccurrences(of: "\\s+$", with: "", options: .regularExpression)
+        let trailingWhitespaceRegex = Regex {
+            OneOrMore(.whitespace)
+            Anchor.endOfSubject
+        }
+        return self.replacing(trailingWhitespaceRegex, with: "")
     }
 }

@@ -155,16 +155,16 @@ public struct DocumentDecoder {
                 }
                 
                 let textContent = String(characters[currentPosition..<endPos])
-                // Only create text nodes if there's non-whitespace content OR if there's a single space
-                // that might be significant between inline elements
+                // Only create text nodes if there's non-whitespace content OR if there's significant whitespace
+                // between inline elements (regular space, full-width space, etc.)
                 let trimmedContent = textContent.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !trimmedContent.isEmpty {
                     // Has actual content - create text node with original content
                     let textNode = HTMLNode(type: .text, text: textContent)
                     currentNode.addChild(textNode)
-                } else if textContent == " " {
-                    // Single space - likely significant whitespace between inline elements
-                    let textNode = HTMLNode(type: .text, text: " ")
+                } else if isSignificantWhitespace(textContent) {
+                    // Significant whitespace between inline elements (space, full-width space, etc.)
+                    let textNode = HTMLNode(type: .text, text: textContent)
                     currentNode.addChild(textNode)
                 }
                 
@@ -272,6 +272,16 @@ public struct DocumentDecoder {
     ]
     private func isSelfClosingTag(_ tagName: String) -> Bool {
         selfClosingTags.contains(tagName.lowercased())
+    }
+    
+    private func isSignificantWhitespace(_ text: String) -> Bool {
+        // Check for single significant whitespace characters that should be preserved
+        // between inline elements
+        return text == " " ||           // Regular space
+               text == "　" ||          // Full-width space (U+3000)
+               text == "\u{00A0}" ||    // Non-breaking space
+               text == "\u{2009}" ||    // Thin space
+               text == "\u{200A}"       // Hair space
     }
 }
 
