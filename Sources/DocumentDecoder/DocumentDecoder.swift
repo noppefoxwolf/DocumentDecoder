@@ -281,8 +281,7 @@ public struct DocumentDecoder {
         // (not structural whitespace like newlines and tabs)
         
         // Start with all whitespace characters, then subtract structural ones
-        let structuralWhitespace = CharacterSet.whitespaces
-        let significantSpaces = CharacterSet.whitespaces.subtracting(structuralWhitespace)
+        let significantSpaces = CharacterSet.whitespaces
         
         // First check if it's only whitespace
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
