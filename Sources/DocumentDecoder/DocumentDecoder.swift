@@ -1,3 +1,5 @@
+import Foundation
+
 public struct DocumentDecoder {
     public init() {}
     
@@ -275,13 +277,25 @@ public struct DocumentDecoder {
     }
     
     private func isSignificantWhitespace(_ text: String) -> Bool {
-        // Check for single significant whitespace characters that should be preserved
-        // between inline elements
-        return text == " " ||           // Regular space
-               text == "　" ||          // Full-width space (U+3000)
-               text == "\u{00A0}" ||    // Non-breaking space
-               text == "\u{2009}" ||    // Thin space
-               text == "\u{200A}"       // Hair space
+        // Check if text contains only whitespace that might be significant for layout
+        // (not structural whitespace like newlines and tabs)
+        
+        // Start with all whitespace characters, then subtract structural ones
+        let structuralWhitespace = CharacterSet.whitespaces
+        let significantSpaces = CharacterSet.whitespaces.subtracting(structuralWhitespace)
+        
+        // First check if it's only whitespace
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty {
+            return false // Contains non-whitespace content
+        }
+        
+        // Check if it contains only space-like characters (not newlines, tabs, etc.)
+        let onlySpaceLikeChars = text.unicodeScalars.allSatisfy { scalar in
+            significantSpaces.contains(scalar)
+        }
+        
+        return onlySpaceLikeChars && text.count <= 5 // Reasonable limit to prevent very long whitespace
     }
 }
 
