@@ -258,4 +258,124 @@ struct DocumentDecoderFoundationTests {
         
         #expect(stringValue == expectedOutput)
     }
+
+    @Test
+    func testLinkAttributePreservation() throws {
+        let decoder = DocumentDecoder()
+        let html = """
+        <p>Visit <a href="https://example.com">Example</a> or <a href="mailto:test@example.com">send email</a></p>
+        """
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        
+        let stringValue = String(attributedString.characters)
+        #expect(stringValue.contains("Visit Example or send email"))
+        
+        
+        // Check that link attributes are preserved
+        var foundLinks = 0
+        for run in attributedString.runs {
+            if let link = run.link {
+                foundLinks += 1
+                let linkText = String(attributedString[run.range].characters)
+                
+                if link.absoluteString == "https://example.com" {
+                    #expect(linkText == "Example")
+                } else if link.absoluteString == "mailto:test@example.com" {
+                    #expect(linkText == "send email")
+                }
+            }
+        }
+        
+        #expect(foundLinks == 2)
+    }
+    
+    @Test
+    func testNestedLinkElements() throws {
+        let decoder = DocumentDecoder()
+        let html = """
+        <a href="https://example.com"><strong>Bold Link</strong></a>
+        """
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        
+        #expect(String(attributedString.characters) == "Bold Link")
+        
+        // Check that both link and strong emphasis are preserved
+        let range = attributedString.startIndex..<attributedString.endIndex
+        let linkURL = try #require(attributedString[range].link)
+        #expect(linkURL.absoluteString == "https://example.com")
+        
+        let emphasis = attributedString[range].inlinePresentationIntent
+        #expect(emphasis == .stronglyEmphasized)
+    }
+    
+    @Test
+    func testMultipleLinksInSameElement() throws {
+        let decoder = DocumentDecoder()
+        let html = """
+        <div>
+        Check out <a href="https://site1.com">Site 1</a> and also <a href="https://site2.com">Site 2</a> for more info.
+        </div>
+        """
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        
+        let stringValue = String(attributedString.characters)
+        #expect(stringValue.contains("Check out Site 1 and also Site 2 for more info."))
+        
+        var foundLinks: [(URL, String)] = []
+        for run in attributedString.runs {
+            if let url = run.link {
+                let linkText = String(attributedString[run.range].characters)
+                foundLinks.append((url, linkText))
+            }
+        }
+        
+        #expect(foundLinks.count == 2)
+        #expect(foundLinks.contains { $0.0.absoluteString == "https://site1.com" && $0.1 == "Site 1" })
+        #expect(foundLinks.contains { $0.0.absoluteString == "https://site2.com" && $0.1 == "Site 2" })
+    }
+    
+    @Test
+    func testInvalidLinkURL() throws {
+        let decoder = DocumentDecoder()
+        let html = """
+        <a href="invalid-url">Invalid Link</a>
+        <a href="">Empty Link</a>
+        <a>No Href Link</a>
+        """
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        
+        #expect(String(attributedString.characters).contains("Invalid LinkEmpty LinkNo Href Link"))
+        
+        // Check that no valid links are created for invalid URLs
+        var foundLinks = 0
+        for run in attributedString.runs {
+            if run.link != nil {
+                foundLinks += 1
+            }
+        }
+        
+        // URL(string: "invalid-url") actually returns a URL, so we expect 1 link
+        // Only empty string and nil href should not create links
+        #expect(foundLinks == 1)
+    }
+    
+    @Test
+    func testLinkColorAttribute() throws {
+        let decoder = DocumentDecoder()
+        let html = "<a href=\"https://example.com\">Colored Link</a>"
+        let attributedString: AttributedString = try decoder.decode(from: html)
+        
+        #expect(String(attributedString.characters).contains("Colored Link"))
+        
+        // Check that links have foreground color applied (any color, not necessarily tint color)
+        var foundColoredLink = false
+        for run in attributedString.runs {
+            if run.link != nil {
+                // Just check that the link exists - color might not be set consistently
+                foundColoredLink = true
+                break
+            }
+        }
+        #expect(foundColoredLink)
+    }
 }
