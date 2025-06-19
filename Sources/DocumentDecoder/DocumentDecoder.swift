@@ -246,9 +246,24 @@ public struct DocumentDecoder {
         return attributes
     }
     
+    let selfClosingTags: Set<String> = [
+        "area",
+        "base",
+        "br",
+        "col",
+        "embed",
+        "hr",
+        "img",
+        "input",
+        "link",
+        "meta",
+        "param",
+        "source",
+        "track",
+        "wbr"
+    ]
     private func isSelfClosingTag(_ tagName: String) -> Bool {
-        let selfClosingTags = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]
-        return selfClosingTags.contains(tagName.lowercased())
+        selfClosingTags.contains(tagName.lowercased())
     }
 }
 
@@ -345,9 +360,25 @@ public final class HTMLNode {
         }
     }
     
-    private func isSelfClosingTag(_ tagName: String) -> Bool {
-        let selfClosingTags = ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]
-        return selfClosingTags.contains(tagName.lowercased())
+    let selfClosingTags: Set<String> = [
+        "area",
+        "base",
+        "br",
+        "col",
+        "embed",
+        "hr",
+        "img",
+        "input",
+        "link",
+        "meta",
+        "param",
+        "source",
+        "track",
+        "wbr"
+    ]
+    
+    func isSelfClosingTag(_ tagName: String) -> Bool {
+        selfClosingTags.contains(tagName.lowercased())
     }
     
     // HTMLエンティティをデコードする関数
