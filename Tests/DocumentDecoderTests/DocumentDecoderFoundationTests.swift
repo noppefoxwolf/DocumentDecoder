@@ -209,18 +209,6 @@ struct DocumentDecoderFoundationTests {
     }
     
     @Test
-    func attributes() async throws {
-        let decoder = DocumentDecoder()
-        let html = """
-        <a href="https://lemm.ee/c/BreadClub" class="u-url mention account-url-link group" data-account-id="113967687941977509" data-account-actor-type="Group" data-account-acct="BreadClub@lemm.ee">@<span>BreadClub</span></a>
-        """
-        let attributedString: AttributedString = try decoder.decode(from: html)
-        attributedString.runs[\.link].forEach { link, range in
-            print(attributedString[range].html)
-        }
-    }
-    
-    @Test
     func decodeMultipleParagraphs() async throws {
         let decoder = DocumentDecoder()
         let html = "<p>line1</p><p>line2</p><p>line3</p>"
