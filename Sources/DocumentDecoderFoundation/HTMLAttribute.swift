@@ -45,6 +45,7 @@ public final class HTMLAttributeObject: NSObject {
 extension AttributeScopes {
     public struct HTMLAttributes: AttributeScope {
         public let html: HTMLAttribute
+        public let invisible: InvisibleAttribute
 
         public let foundation: FoundationAttributes
         
