@@ -9,7 +9,7 @@ struct EllipsisAttributeTests {
     func retainsOriginalString() throws {
         var attributed = AttributedString("visible…")
         let original = "original text"
-        let ellipsisRange = attributed.index(before: attributed.endIndex)..<attributed.endIndex
+        let ellipsisRange = attributed.index(beforeRun: attributed.endIndex)..<attributed.endIndex
         attributed[ellipsisRange].ellipsis = original
         let stored = try #require(attributed[ellipsisRange].ellipsis)
         #expect(stored == original)
