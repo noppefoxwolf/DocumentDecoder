@@ -5,25 +5,25 @@ extension NSAttributedString.Key {
 }
 
 public enum InvisibleAttribute: CodableAttributedStringKey {
-    public typealias Value = Bool
+    public typealias Value = String
     public static var name: String { NSAttributedString.Key.invisible.rawValue }
 }
 
 extension InvisibleAttribute: ObjectiveCConvertibleAttributedStringKey {
-    public static func objectiveCValue(for value: Bool) throws -> InvisibleAttributeObject {
-        InvisibleAttributeObject(isInvisible: value)
+    public static func objectiveCValue(for value: String) throws -> InvisibleAttributeObject {
+        InvisibleAttributeObject(originalString: value)
     }
 
-    public static func value(for object: InvisibleAttributeObject) throws -> Bool {
-        object.isInvisible
+    public static func value(for object: InvisibleAttributeObject) throws -> String {
+        object.originalString
     }
 }
 
 public final class InvisibleAttributeObject: NSObject {
-    public let isInvisible: Bool
+    public let originalString: String
 
-    init(isInvisible: Bool) {
-        self.isInvisible = isInvisible
+    init(originalString: String) {
+        self.originalString = originalString
     }
 }
 
