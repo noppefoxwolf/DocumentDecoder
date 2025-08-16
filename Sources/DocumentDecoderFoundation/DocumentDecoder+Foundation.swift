@@ -44,8 +44,16 @@ extension DocumentDecoder {
             }
             
         case .element:
-            // Check if this element has invisible class and skip rendering if it does
+            // Check if this element has invisible class and replace it with an invisible attribute
             if hasInvisibleClass(node) {
+                let original = extractText(from: node)
+                if !original.isEmpty {
+                    var container = AttributeContainer()
+                    container.invisible = original
+                    // Use a zero-width space as an invisible placeholder
+                    let placeholder = AttributedString("\u{200B}", attributes: container)
+                    result.append(placeholder)
+                }
                 return result
             }
             
@@ -162,17 +170,26 @@ extension DocumentDecoder {
         
     private func isBlockElement(_ tagName: String?) -> Bool {
         guard let tagName = tagName?.lowercased() else { return false }
-        
+
         let blockElements = [
             "div", "p", "h1", "h2", "h3", "h4", "h5", "h6",
             "ul", "ol", "li", "blockquote", "pre", "hr",
             "table", "tr", "td", "th", "thead", "tbody", "tfoot",
             "section", "article", "header", "footer", "nav", "aside"
         ]
-        
+
         return blockElements.contains(tagName)
     }
-    
+
+    private func extractText(from node: HTMLNode) -> String {
+        switch node.type {
+        case .text:
+            return node.outerHTML
+        case .element, .document:
+            return node.children.map { extractText(from: $0) }.joined()
+        }
+    }
+
     private func hasEllipsisClass(_ node: HTMLNode) -> Bool {
         guard let classAttribute = node.getAttribute("class") else {
             return false
