@@ -90,7 +90,9 @@ extension DocumentDecoder {
                     result = AttributedString(trimmedValue)
                     // TODO: Preserve attributes more carefully
                 }
-                let ellipsis = AttributedString("…")
+                var container = AttributeContainer()
+                container.ellipsis = trimmedValue
+                let ellipsis = AttributedString("…", attributes: container)
                 result.append(ellipsis)
             }
             
