@@ -46,6 +46,7 @@ extension AttributeScopes {
     public struct HTMLAttributes: AttributeScope {
         public let html: HTMLAttribute
         public let invisible: InvisibleAttribute
+        public let ellipsis: EllipsisAttribute
 
         public let foundation: FoundationAttributes
         
