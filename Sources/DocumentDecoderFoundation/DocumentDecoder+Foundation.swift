@@ -44,8 +44,8 @@ extension DocumentDecoder {
             }
             
         case .element:
-            // Check if this element has invisible class and replace it with an invisible attribute
-            if hasInvisibleClass(node) {
+            // Check if this element has invisible class or is a <p class="quote-inline"> and replace it with an invisible attribute
+            if hasInvisibleClass(node) || hasQuoteInlineParagraph(node) {
                 let original = extractText(from: node)
                 if !original.isEmpty {
                     var container = AttributeContainer()
@@ -208,6 +208,16 @@ extension DocumentDecoder {
         
         let classes = classAttribute.split(separator: " ").map { String($0) }
         return classes.contains { $0.lowercased() == "invisible" }
+    }
+    
+    private func hasQuoteInlineParagraph(_ node: HTMLNode) -> Bool {
+        // Only match <p> elements that include the class "quote-inline"
+        guard node.name?.lowercased() == "p",
+              let classAttribute = node.getAttribute("class") else {
+            return false
+        }
+        let classes = classAttribute.split(separator: " ").map { String($0).lowercased() }
+        return classes.contains("quote-inline")
     }
 }
 
